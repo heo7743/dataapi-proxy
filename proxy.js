@@ -25,6 +25,7 @@ app.get('/business', async (req, res) => {
   }
 });
 
-app.listen(3000, () => {
-  console.log('프록시 서버가 http://localhost:3000 에서 실행 중');
+app.listen(process.env.PORT || 3000, () => {
+  console.log('서버 실행 중');
 });
+
