@@ -10,6 +10,7 @@ const SERVICE_KEY = process.env.SERVICE_KEY;
 const proxyHandler = (endpoint) => {
   return async (req, res) => {
     try {
+      console.log('[INFO] 호출하는 엔드포인트:', `${BASE_URL}/${endpoint}`);
       const params = {
         serviceKey: SERVICE_KEY,
         page: req.query.page || 1,
@@ -24,6 +25,8 @@ const proxyHandler = (endpoint) => {
         }
       });
 
+console.log('[INFO] 요청 파라미터:', params);  // 여기가 핵심
+      
       const result = await axios.get(`${BASE_URL}/${endpoint}`, { params });
       res.json(result.data);
     } catch (error) {
