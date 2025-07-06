@@ -3,14 +3,13 @@ const axios = require('axios');
 require('dotenv').config();
 
 const app = express();
+
 const BASE_URL = 'https://apis.data.go.kr/B552735/kisedKstartupService01';
 const SERVICE_KEY = process.env.SERVICE_KEY;
 
-// 공통 프록시 요청 핸들러
 const proxyHandler = (endpoint) => {
   return async (req, res) => {
     try {
-      console.log('[INFO] 호출하는 엔드포인트:', `${BASE_URL}/${endpoint}`);
       const params = {
         serviceKey: SERVICE_KEY,
         page: req.query.page || 1,
@@ -18,25 +17,26 @@ const proxyHandler = (endpoint) => {
         returnType: req.query.returnType || 'json'
       };
 
-      // cond[...] 형식 필터링
+      // cond[...] 파라미터를 그대로 전달
       Object.entries(req.query).forEach(([key, value]) => {
         if (key.startsWith('cond[')) {
           params[key] = value;
         }
       });
 
-console.log('[INFO] 요청 파라미터:', params);  // 여기가 핵심
-      
+      console.log('[INFO] 호출 endpoint:', endpoint);
+      console.log('[INFO] 요청 파라미터:', params);
+
       const result = await axios.get(`${BASE_URL}/${endpoint}`, { params });
       res.json(result.data);
     } catch (error) {
-      console.error('프록시 요청 실패:', error.response?.data || error.message);
-      res.status(500).json({ error: '프록시 오류', detail: error.message });
+      console.error('[ERROR] 프록시 오류:', error.response?.data || error.message);
+      res.status(500).json({ error: '프록시 호출 실패', detail: error.message });
     }
   };
 };
 
-// 엔드포인트 라우팅
+// 실제 엔드포인트 라우팅
 app.get('/business', proxyHandler('getBusinessInformation01'));
 app.get('/announcement', proxyHandler('getAnnouncementInformation01'));
 app.get('/content', proxyHandler('getContentInformation01'));
@@ -49,5 +49,5 @@ app.get('/test', (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`🔄 Proxy server running on port ${PORT}`);
+  console.log(`✅ 서버 실행됨: http://localhost:${PORT}`);
 });
